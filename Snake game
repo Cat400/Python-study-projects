@@ -1,0 +1,172 @@
+import tkinter as tk
+import random
+
+#game settings
+WIDTH = 400
+HEIGHT=400
+DIRECTIONS=["Up","Down","Left","Right"]
+CELL_SIZE=10
+DELAY=100
+
+#Creation of the main window
+root=tk.Tk()
+root.title("Snake | Score: 0")
+root.resizable(False,False)
+
+#creating a drawing canvas
+canvas=tk.Canvas(root,width=WIDTH,
+                 height=HEIGHT,
+                 bg="black",
+                 highlightthickness=0)
+canvas.pack()
+
+#initial game state
+#snake=[(100,100),#head of snake
+ #      (90,100),#first segment
+  #     (80,100)]#second segment
+direction="Right"
+food=None
+score=0
+game_over=False
+
+#food generation function
+
+def create_snake():
+    max_x = (WIDTH // CELL_SIZE) - 3
+    max_y = (HEIGHT // CELL_SIZE) - 1
+
+    x= random.randint(0,max_x) * CELL_SIZE
+    y = random.randint(0,max_y) * CELL_SIZE
+
+    return [(x,y),(x - CELL_SIZE, y), (x - 2 * CELL_SIZE, y)]
+snake = create_snake()
+
+def create_food():
+    while True:
+        x = random.randint(0, (WIDTH - CELL_SIZE) // CELL_SIZE) * CELL_SIZE
+        y = random.randint(0, (HEIGHT - CELL_SIZE) // CELL_SIZE) * CELL_SIZE
+        if (x, y) not in snake:  # Проверяем, не находится ли еда внутри змейки
+            return (x, y)
+food=create_food()
+#food illustration
+def draw_food():
+    canvas.create_rectangle(
+        food[0],food[1], #upper left angle (x1,y1)
+        food[0]+CELL_SIZE,# x-coordinate of right edge
+        food[1]+CELL_SIZE,# y-coordinate of lower edge
+        fill="red", #fill color
+        )
+#snake illustration
+def draw_snake():
+    for segment in snake:
+        canvas.create_rectangle(
+            segment[0],segment[1],#upper left angle
+            segment[0]+CELL_SIZE,#lower right angle (x)
+            segment[1]+CELL_SIZE,#lower right angle (y)
+            fill="green",        #fill color
+            )
+
+def check_food_collision():
+    global food, score
+    if snake[0] == food:
+        score += 1    #increasing the score
+        food = create_food() #generate new food
+        return True   #inform that food has been eaten
+    return False      #the food hasn't been eaten
+
+def check_wall_collision():
+    head_x, head_y = snake[0]
+    return (
+        head_x < 0 or head_x >= WIDTH or
+        head_y < 0 or head_y >= HEIGHT
+        )
+def check_self_collision():
+    return snake[0] in snake[1:]
+
+def move_snake():
+    head_x, head_y = snake[0]
+    if direction == "Up":
+        new_head = (head_x, head_y - CELL_SIZE)
+    if direction == "Down":
+        new_head = (head_x, head_y + CELL_SIZE)
+    if direction == "Left":
+        new_head = (head_x - CELL_SIZE, head_y)
+    if direction == "Right":
+        new_head = (head_x + CELL_SIZE, head_y)
+    snake.insert(0,new_head) #add new head
+    if not check_food_collision():
+        snake.pop() #cancell tail (if food not be eaten)
+
+def update_title():
+    root.title(f"Snake | Score: {score}")
+
+def end_game():
+    global game_over
+    game_over = True #no longer update the game
+    canvas.create_text(
+        WIDTH // 2, HEIGHT // 2,
+        text = f"Game over! Score : {score}",
+        fill="white",
+        font = ("Arial", 24)
+        )
+
+#game loop
+def game_loop():
+    global snake,food,score
+    if game_over:
+        return #stop the loop if a collision has occured
+    move_snake()
+    if check_wall_collision() or check_self_collision():
+        end_game()
+        return
+    canvas.delete("all")
+    draw_food()
+    draw_snake()
+    update_title()
+    root.after(DELAY,game_loop)
+
+def restart_game():
+    global snake, direction, food, score, game_over
+
+    #initial position of the snake
+    snake=create_snake()
+    direction = "Right"
+
+    #New food
+    food = create_food()
+
+    #resetting the score and status
+    score = 0
+    game_over = False
+
+    #clear the canvas and update
+    canvas.delete("all")
+    draw_food()
+    draw_snake()
+    update_title()
+
+    #restarting the game loop
+    root.after(DELAY, game_loop)
+
+def on_key_press(event):
+    global direction
+    key=event.keysym
+    if key in DIRECTIONS:
+        #turning in opposite direction is prohibited
+        if(key=="Down" and direction!= "Up" or
+           key == "Up" and direction != "Down" or
+           key == "Left" and direction != "Right" or
+           key == "Right" and direction != "Left"):
+            direction = key
+    #Restart game
+    elif key == "space" and game_over:
+        restart_game()
+
+root.bind("<KeyPress>",on_key_press) #attach the handler to the window
+
+#initial rendering
+draw_food()
+draw_snake()
+root.after(DELAY,game_loop)
+#starting the main loop
+root.mainloop()
