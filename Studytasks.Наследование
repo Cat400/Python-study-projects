@@ -1,0 +1,323 @@
+#1
+class First:
+    name1='a'
+    def __init__(self,name):
+        self.name1=name
+    def show(self):
+        print(self.name1)
+class Second(First):
+    name2=str()
+    def __init__(self,firstname,secondname):
+        self.name1=firstname
+        self.name2=secondname
+    def show(self):
+        print("name1 ",self.name1,"name2 ",self.name2)
+
+class Third(Second,First):
+    name3=str()
+    def __init__(self,firstname,secondname,lastname):
+        self.name1=firstname
+        self.name2=secondname
+        self.name3=lastname
+    def delete(self):
+        del self.name3
+    def show(self):
+        print("name1 ",self.name1,"name2 ",self.name2,"name3 ",self.name3)
+    
+first=First('first')
+first.show()
+second=Second('one','two')
+second.show()
+third=Third('A','B','C')
+third.show()
+#third.delete()
+#third.show()
+
+#2
+class Num:
+    int=0
+    float=0.0
+    s=str()
+    def __init__(self,*a):
+        for _ in a:
+            if type(_) == int:
+                self.int = _
+            if type(_) == float:
+                self.float = _
+            if type(_) == str:
+                self.s = _
+    def show(self):
+        print("int=",self.int,"float=",self.float,"s=",self.s)
+    def __int__(self):
+        return self.int
+    def __float__(self):
+        return self.float
+    def __str__(self):
+        return self.s
+A = Num(2,1.5,"cool")
+print(int(A))
+print(float(A))
+print(str(A))
+
+class One:
+    def __init__(self,*ar):
+        self.fieldOne=[]
+        for _ in ar:
+            self.fieldOne.append(_)
+    #def __init__(self,array=[]):
+    #    fieldOne=array
+    def __add__(self, operand):
+        return One(*(self.fieldOne+operand.fieldOne))
+    def __radd__(self,operand):
+        return One(*(operand.fieldOne+self.fieldOne))
+    def show(self):
+        print(self.fieldOne)
+A=One(1,2,3,4,5)
+B=One(6,7,8,9,10)
+(A+B).show()
+(B+A).show()
+
+#3
+class Class:
+    name=str()
+    num=0
+    def __init__(self,*args):
+        for s in args:
+            if type(s) == int:
+                self.num = s
+            if type(s) == str:
+                self.name = s
+    def show(self):
+        print("name",self.name,"num",self.num)
+    def __add__(self,number):
+        return(self.num + number)
+    def __radd__(self,number):
+        return(self.num + number)
+    def __sub__(self,number):  
+        return(self.num - number)
+    def __rsub__(self,number):  
+        return(number-self.num)
+    def __mul__(self,number):
+        return(self.num * number)
+    def __rmul__(self,number):
+        return(self.num * number)
+    def __truediv__(self,number):
+        return(self.num / number)
+    def __rtruediv__(self,number):
+        return(number/self.num)
+    def __itruediv__(self,number):
+        self.num /= number
+        return self
+A=Class("name",1)
+print(A+2)
+print(2+A)
+print(A-2)
+print(2-A)
+print(A*2)
+print(2*A)
+print(A/2)
+print(2/A)
+A/=2
+A.show()
+
+#4
+class U:
+    def __init__(self,*args):
+        self.field=[]
+        for _ in args:
+            self.field.append(_)
+    def show(self):
+        print(self.field)
+    def __eq__(self,oper):
+        try:
+            return self.field[0] == oper.field[0]
+        except IndexError:
+            if len(self.field) == len(oper.field):
+                return True
+            elif len(self.field) == 0:
+                return 0 == oper.field[0]
+            elif len(oper.field) == 0:
+                return self.field[0] == 0
+    def __ne__(self,oper):
+        try:
+            return self.field[1] != oper.field[1]
+        except IndexError:
+            if len(self.field) == len(oper.field):
+                return True
+            elif len(self.field) == 1:
+                return 0 != oper.field[1]
+            elif len(oper.field) == 1:
+                return self.field[1] != 0
+    def __lt__(self,oper):
+        try:
+            return self.field[2] < oper.field[2]
+        except IndexError:
+            if len(self.field) == len(oper.field):
+                return True
+            elif len(self.field) == 2:
+                return 0 < oper.field[2]
+            elif len(oper.field) == 2:
+                return self.field[2] < 0
+    def __gt__(self,oper):
+        try:
+            return self.field[3] > oper.field[3]
+        except IndexError:
+            if len(self.field) == len(oper.field):
+                return True
+            elif len(self.field) == 3:
+                return 0 > oper.field[3]
+            elif len(oper.field) == 3:
+                return self.field[3] > 0
+    def __le__(self,oper):
+        try:
+            return self.field[4] <= oper.field[4]
+        except IndexError:
+            if len(self.field) == len(oper.field):
+                return True
+            elif len(self.field) == 4:
+                return 0 <= oper.field[4]
+            elif len(oper.field) == 4:
+                return self.field[4] <= 0
+    def __ge__(self,oper):
+        try:
+            return self.field[4] >= oper.field[4]
+        except IndexError:
+            if len(self.field) == len(oper.field):
+                return True
+            elif len(self.field) == 4:
+                return 0 >= oper.field[4]
+            elif len(oper.field) == 4:
+                return self.field[4] >= 0
+    def __contains__(self,oper):
+        try:
+            return self.field[5] in oper.field
+        except IndexError:
+            return False
+A=U(1,2,3)
+B=U(4,5,6)
+A.show()
+B.show()
+print(A == B)
+
+#5
+class W:
+    def __init__(self,arg=[]):
+        self.field=[]
+        for _ in arg:
+            if type(_) == str:
+                self.field.append(_)        
+    def __getattribute__(self,field):
+        return object.__getattribute__(self,field)
+    def __getattr__(self,name):
+        print("This attribute doesn't exist!")
+        return "W: "+name
+    def show(self):
+        s=str()
+        original_list = object.__getattribute__(self,"field")
+        for _ in range(len(original_list)):
+            s+=original_list[_][0]
+        print(s)
+A=W(["good",2,"QA",2.45,"six minuts"])
+A.show()
+
+#6
+class W:
+    def __init__(self,arg=[]):
+        self._field=[]
+        for _ in arg:
+            if type(_) == str:
+                self._field.append(_)   
+    @property
+    def field(self):
+        s=str()
+        original_list = self._field
+        for _ in range(len(original_list)):
+            s+=original_list[_][0]
+        return s
+A=W(["good",2,"QA",2.45,"six minuts"])
+print(A.field)
+
+#7        
+class U:
+    def __init__(self,a : [int],b: [int]):
+        self.ar1=a
+        self.ar2=b
+    def __getitem__(self,index):
+        try:
+            return self.ar1[index]+self.ar2[index]
+        except IndexError:
+            if len(self.ar1) <= index and len(self.ar2) <= index:
+                return 0
+            elif len(self.ar1) <= index:
+                return self.ar2[index]
+            elif len(self.ar2) <= index:
+                return self.ar1[index]
+    def __setitem__(self,index,values):
+        value1, value2 = values
+        self.ar1[index]=value1
+        self.ar2[index]=value2
+A=U([1,2,5],[9,8])
+print(A[7])
+A[1]=(5,6)
+print(A[1])
+
+#8
+class W:
+    
+    def __init__(self, args=[]):
+        self.field = args
+    def __call__(self, x : float):
+        polinom=0
+        for _ in range(len(self.field)):
+            polinom += self.field[_] * x**_
+        return polinom
+A = W([1,2,3,4])
+print("A(1) =",A(1))
+
+#9
+class iterator:
+    def __init__(self,n):
+        self.position = -1
+        self.oddnums = []
+        for _ in range(n):
+            self.oddnums.append(2*_+1)
+    def __iter__(self):
+        return self
+    def __next__(self):
+        self.position += 1
+        if self.position < len(self.oddnums):
+            return self.oddnums[self.position]
+        else:
+            raise StopIteration
+A=iterator(5)
+try:
+    while True:
+        print(next(A), end=" ")
+except StopIteration:
+    print()
+
+#10            
+class Fibonacchi:
+    def __init__(self,number):
+        self.n=number
+        self.position=-1
+    def __iter__(self):
+        return self
+    def __next__(self):
+        self.position+=1
+        if self.position >= self.n:
+            raise StopIteration
+        a=1
+        b=1
+        if self.position <= 1:
+            return 1
+        for _ in range(self.position):
+            a,b = b, a+b
+        return b
+fib = Fibonacchi(5)
+for num in fib:
+    print(num, end=" ")
+
+
+                
+      
