@@ -1,0 +1,78 @@
+a = 0.9
+b = 1.1
+N = 48
+h = 1/N
+delta = pow(10, -6)
+
+print("N: ", N, "\ndelta: ", delta)
+
+residual = 1
+
+def boundary_D(i, j):
+  return ((i==N) or (j==N) or ((2*N/3<=i<=N)and(j==0)) or ((i==2*N/3)and(0<=j<=2*N/3)) or ((0<=i<=2*N/3)and(j==2*N/3)) or ((i==0)and(2*N/3<=j<=N)))
+
+def interior_D(i, j):
+  return ((not((i< 2*N /3)and(j<2*N/3))) and (not(boundary_D(i, j))))
+
+def phi(i, j):
+  return (4-3.2*math.pow(i*h,2)-4.8*math.pow(j*h,2))/math.pow((1+math.pow(i*h,2)+math.pow(j*h,2)),3)
+
+def g(i, j):
+  return 1/(1+math.pow(i*h,2)+math.pow(j*h,2))
+
+def print_matrix(M):
+  for j in range(N+1):
+    print()
+    for i in range(N+1):
+      print(round(M[i][N-j],3), end="  ")
+
+def dot(M1, M2):
+  res = 0
+  for j in range(N+1):
+    for i in range(N+1):
+        if interior_D(i,j):
+          res+=M1[i][j]*M2[i][j]*h*h
+  return res
+
+def norm(M):
+  return math.sqrt(dot(M,M))
+
+
+def A(M, i, j):
+  return (-a*(M[i-1][j]-2*M[i][j]+M[i+1][j])/(h*h)-b*(M[i][j-1]-2*M[i][j]+M[i][j+1])/(h*h))
+
+def tau(r):
+  normr_2=math.pow(norm(r),2)
+  Ar=[[A(r, i, j) if interior_D(i, j) else 0 for j in range(N+1)] for i in range(N+1)]
+  scalar_product = dot(Ar,r)
+  return normr_2 / scalar_product
+
+error=0
+
+U = [[1 if interior_D(i, j) else g(i, j) if boundary_D(i,j) else 0 for j in range(N+1)] for i in range(N+1)]
+r1 = [[A(U, i, j)-phi(i,j) if interior_D(i, j) else 0 for j in range(N+1)] for i in range(N+1)]
+r2=copy.deepcopy(r1)
+iteration=0
+#print_matrix(U)
+while (residual > delta):
+  r1=copy.deepcopy(r2)
+  tauN=tau(r1)
+  #print(r1)
+  #print(tauN)
+  for j in range(N+1):
+    for i in range(N+1):
+      if interior_D(i,j):
+        U[i][j] = U[i][j] - tauN * r1[i][j]
+      elif boundary_D(i, j):
+        U[i][j] = g(i, j)
+      else:
+        U[i][j]=0
+  r2 = [[A(U, i, j)-phi(i,j) if interior_D(i, j) else 0 for j in range(N+1)] for i in range(N+1)]    
+  Temp1 = [[r1[i][j] - r2[i][j] if interior_D(i, j) else 0 for j in range(N+1)] for i in range(N+1)]
+  residual = norm(Temp1)
+  Temp3 = [[U[i][j]-g(i, j) if interior_D(i, j) else 0 for j in range(N+1)] for i in range(N+1)]
+  error = norm(Temp3)
+  iteration+=1
+print("error: ", error, "\niteration: ", iteration)
+
+        
